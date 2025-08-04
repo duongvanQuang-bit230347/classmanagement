@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - feature-*
 
 jobs:
   build-and-deploy:
@@ -25,4 +26,4 @@ jobs:
     - name: Deploy WAR to Tomcat
       run: |
         echo "Deploying WAR to Tomcat..."
-        curl --upload-file target/classroommanagement-1.0-SNAPSHOT.war "http://admin:admin123@localhost:8080/manager/text/deploy?path=/yourapp&update=true"
+        curl --upload-file target/yourapp.war "http://admin:admin123@localhost:8080/manager/text/deploy?path=/yourapp&update=true"
