@@ -44,6 +44,7 @@ jobs:
 
     - name: Deploy WAR to Tomcat
       run: |
-        echo "Deploying WAR to Tomcat..."
-         curl --upload-file classroommanagement-1.0-SNAPSHOT.war "http://admin:admin123@localhost:8080/manager/text/deploy?path=/myapp&update=true"
+        curl --upload-file classroommanagement-1.0-SNAPSHOT.war \
+        "http://admin:admin123@123.45.67.89:8080/manager/text/deploy?path=/myapp&update=true"
+
 
