@@ -45,6 +45,6 @@ jobs:
     - name: Deploy WAR to Tomcat
       run: |
         curl --upload-file classroommanagement-1.0-SNAPSHOT.war \
-        "http://admin:admin123@123.45.67.89:8080/manager/text/deploy?path=/myapp&update=true"
+        "http://admin:admin123@192.168.41.1:8080/manager/text/deploy?path=/myapp&update=true"
 
 
