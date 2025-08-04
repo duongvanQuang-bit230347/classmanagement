@@ -1,50 +1,33 @@
-name: Build and Deploy WAR to Tomcat
+name: CI/CD → Tomcat Deploy
 
 on:
   push:
-    branches:
-      - main
-      - feature-*
+    branches: [ main, 'feature-*' ]
 
 jobs:
-  build:
-    name: Build WAR file
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout source code
-      uses: actions/checkout@v4
+      - name: Checkout source
+        uses: actions/checkout@v3
 
-    - name: Set up Java
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
+      - name: Set up Java 8
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '8'
 
-    - name: Build WAR file using Maven
-      run: mvn clean package
+      - name: Build WAR with Maven
+        run: mvn clean package
 
-    - name: Upload WAR artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: war-file
-        path: target/*.war
-
-  deploy:
-    name: Deploy to Tomcat
-    needs: build
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Download WAR artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: war-file
-
-    - name: Deploy WAR to Tomcat
-      run: |
-        curl --upload-file classroommanagement-1.0-SNAPSHOT.war \
-        "http://admin:admin123@192.168.41.1:8080/manager/text/deploy?path=/myapp&update=true"
-
-
+      - name: Deploy WAR to TomcatS
+        env:
+          TOMCAT_USERNAME: admin          # 🔁 thay bằng username thật
+          TOMCAT_PASSWORD: admin123       # 🔁 thay bằng mật khẩu thật
+          TOMCAT_HOST: localhost8080.com       # 🔁 không dùng localhost
+          TOMCAT_PORT: 80                 # hoặc 443 nếu dùng HTTPS
+        run: |
+          curl -v -u $admin:$admin123 \
+            -T target/*.war \
+            "http://$TOMCAT_HOST:$TOMCAT_PORT/manager/text/deploy?path=/baitapnhom5&update=true"
