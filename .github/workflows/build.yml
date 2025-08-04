@@ -1,0 +1,32 @@
+name: CI/CD Deploy to Tomcat
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '8'
+          distribution: 'temurin'
+
+      - name: Build WAR file
+        run: mvn clean package
+
+      - name: Deploy to Tomcat using curl
+        env:
+          TOMCAT_HOST: localhost
+          TOMCAT_USERNAME: admin
+          TOMCAT_PASSWORD: admin123
+        run: |
+          echo "Deploying WAR to Tomcat..."
+          curl -v --upload-file target/classroommanagement-1.0-SNAPSHOT.war \
+            "http://$TOMCAT_USERNAME:$TOMCAT_PASSWORD@$TOMCAT_HOST:8080/manager/text/deploy?path=/classroommanagement&update=true"
