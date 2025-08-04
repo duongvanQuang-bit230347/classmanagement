@@ -1,32 +1,47 @@
-name: CI/CD Deploy to Tomcats
+name: Build and Deploy WAR to Tomcat
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
-  build-and-deploy:
+  build:
+    name: Build WAR file
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout source code
-        uses: actions/checkout@v3
+    - name: Checkout source code
+      uses: actions/checkout@v4
 
-      - name: Set up Java
-        uses: actions/setup-java@v3
-        with:
-          java-version: '8'
-          distribution: 'temurin'
+    - name: Set up Java
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
 
-      - name: Build WAR file
-        run: mvn clean package
+    - name: Build WAR file using Maven
+      run: mvn clean package
 
-      - name: Deploy to Tomcat using curl
-        env:
-          TOMCAT_HOST: localhost
-          TOMCAT_USERNAME: admin
-          TOMCAT_PASSWORD: admin123
-        run: |
-          echo "Deploying WAR to Tomcat..."
-          curl -v --upload-file target/classroommanagement-1.0-SNAPSHOT.war \
-            "http://$TOMCAT_USERNAME:$TOMCAT_PASSWORD@$TOMCAT_HOST:8080/manager/text/deploy?path=/classroommanagement&update=true"
+    - name: Upload WAR artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: war-file
+        path: target/*.war
+
+  deploy:
+    name: Deploy to Tomcat
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Download WAR artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: war-file
+
+    - name: Deploy WAR to Tomcat
+      run: |
+        echo "Deploying WAR to Tomcat..."
+        curl --fail -T *.war "http://admin:admin123@localhost:8080/manager/text/deploy?path=/myapp&update=true"
